@@ -7,37 +7,40 @@ require 'cucumber'
 require 'cucumber/rake/task'
 require 'fileutils'
 
-CLEAN.include("pkg/", "tmp/")
-CLOBBER.include("Gemfile.lock")
+require 'puppetlabs_spec_helper/rake_tasks' # needed for some module packaging tasks
+require 'puppet_blacksmith/rake_tasks'
+
+CLEAN.include('pkg/', 'tmp/')
+CLOBBER.include('Gemfile.lock')
 
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'puppet_blacksmith/version'
 
-task :default => [:clean, :spec, :cucumber, :build]
+task default: %i[clean spec cucumber build]
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = "--tag ~live"
+  t.rspec_opts = '--tag ~live'
 end
 
 Cucumber::Rake::Task.new(:cucumber) do |t|
   require 'puppet/version'
-  if Gem::Version.new(Puppet.version) < Gem::Version.new("3.6.0")
-    t.cucumber_opts = "--tags ~@metadatajson"
+  if Gem::Version.new(Puppet.version) < Gem::Version.new('3.6.0')
+    t.cucumber_opts = '--tags ~@metadatajson'
   end
 end
 
 task :bump do
   v = Gem::Version.new("#{Blacksmith::VERSION}.0")
-  fail("Unable to increase prerelease version #{Blacksmith::VERSION}") if v.prerelease?
+  raise("Unable to increase prerelease version #{Blacksmith::VERSION}") if v.prerelease?
   s = <<-EOS
 module Blacksmith
-  VERSION = #{v.bump.to_s}
+  VERSION = #{v.bump}
 end
 EOS
 
-  File.open("lib/puppet_blacksmith/version.rb", "w") do |file|
+  File.open('lib/puppet_blacksmith/version.rb', 'w') do |file|
     file.print s
   end
-  sh "git add version"
+  sh 'git add version'
   sh "git commit -m 'Bump version'"
 end

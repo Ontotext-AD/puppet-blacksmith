@@ -1,7 +1,7 @@
 puppet-blacksmith
 =================
 
-[![Build Status](https://travis-ci.org/voxpupuli/puppet-blacksmith.svg?branch=master)](https://travis-ci.org/voxpupuli/puppet-blacksmith)
+[![Build Status](https://travis-ci.org/Ontotext-AD/puppet-blacksmith.svg?branch=master)](https://travis-ci.org/Ontotext-AD/puppet-blacksmith)
 
 Ruby Gem with several Puppet Module utilities
 
@@ -41,6 +41,7 @@ Rake tasks included:
 | module:clean       | Runs clean again |
 | module:dependency[modulename, version] | Updates the module version of a specific dependency |
 | module:push        | Push module to the Puppet Forge |
+| module:push_nexus  | Push module to the Nexus instance |
 | module:release     | Release the Puppet module, doing a clean, build, tag, push, bump_commit and git push |
 | module:tag         | Git tag with the current module version |
 | module:version     | Get the current module version |
@@ -87,6 +88,39 @@ Add the require instructions for blacksmith and the puppetlabs_spec_helper to th
 Run rake. Ensure you are doing it in a clean working folder or the puppet module tool will package all the unnecessary files.
 
     $ rake module:push
+    
+### Push a module to Nexus instance
+
+Configure your credentials in `~/.nexus.yml`
+
+    ---
+    url: http://nexus.instance.com
+    repository: internal
+    group: com.ontotext.puppet
+    artifact: base
+    username: myuser
+    password: mypassword
+
+
+Or set the equivalent environment variables in your shell
+    
+    export BLACKSMITH_NEXUS_URL=http://nexus.instance.com
+    export BLACKSMITH_NEXUS_USERNAME=myuser
+    export BLACKSMITH_NEXUS_PASSWORD=mypassword
+    export BLACKSMITH_NEXUS_REPOSITORY=internal
+    export BLACKSMITH_NEXUS_GROUP_ID=com.ontotext.puppet
+    export BLACKSMITH_NEXUS_ARTIFACT_ID=base
+
+
+Add the require instructions for blacksmith and the puppetlabs_spec_helper to the Rakefile
+
+    # Rakefile
+    require 'puppetlabs_spec_helper/rake_tasks'
+    require 'puppet_blacksmith/rake_tasks'
+
+Run rake. Ensure you are doing it in a clean working folder or the puppet module tool will package all the unnecessary files.
+
+    $ rake module:push_nexus
 
 # Customizing tasks
 
